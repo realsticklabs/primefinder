@@ -3,54 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prime Number Generator</title>
+    <title>Prime Number Generator with Brython</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.9.5/brython.min.js"></script>
 </head>
-<body>
+<body onload="brython()">
     <h1>Prime Number Generator</h1>
     <pre id="output">Primes Found: 0</pre>
     <button id="downloadBtn">Download Prime Numbers</button>
 
-    <script>
-        function isPrime(n) {
-            for (let i = 2; i <= Math.sqrt(n); i++) {
-                if (n % i === 0) {
-                    return false;
-                }
-            }
-            return n > 1; // Ensure n is greater than 1
-        }
+    <script type="text/python">
+        from browser import document, window
+        import time
 
-        let num = 3;
-        let output = document.getElementById('output');
-        let primes = []; // Array to store prime numbers
-        let primeCount = 0; // Counter for the number of primes found
+        def is_prime(n):
+            if n <= 1:
+                return False
+            for i in range(2, int(n**0.5) + 1):
+                if n % i == 0:
+                    return False
+            return True
 
-        function generatePrimes() {
-            if (isPrime(num)) {
-                primes.push(num); // Store prime number
-                primeCount++; // Increment the prime count
-                output.textContent = 'Primes Found: ' + primeCount; // Update the output with the count
-            }
-            num += 2; // Increment by 2 to only check odd numbers
+        num = 3
+        primes = []  # List to store prime numbers
+        prime_count = 0  # Counter for the number of primes found
+
+        def generate_primes():
+            global num, prime_count
+            if is_prime(num):
+                primes.append(num)  # Store prime number
+                prime_count += 1  # Increment the prime count
+                document["output"].textContent = f'Primes Found: {prime_count}'  # Update the output with the count
+            num += 2  # Increment by 2 to only check odd numbers
             
-            // Schedule the next prime check after a short delay
-            setTimeout(generatePrimes, 1); // Adjust delay as needed
-        }
+            # Schedule the next prime check after a short delay
+            window.setTimeout(generate_primes, 10)  # Adjust delay as needed
 
-        generatePrimes(); // Start generating primes
+        generate_primes()  # Start generating primes
 
-        // Function to download primes as a .txt file
-        document.getElementById('downloadBtn').addEventListener('click', function() {
-            const blob = new Blob([primes.join('\n')], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'primes.txt';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        });
+        def download_primes(event):
+            blob = window.Blob.new([window.join(primes, "\n")], { "type": "text/plain" })
+            url = window.URL.createObjectURL(blob)
+            a = window.document.createElement("a")
+            a.href = url
+            a.download = "primes.txt"
+            window.document.body.appendChild(a)
+            a.click()
+            window.document.body.removeChild(a)
+            window.URL.revokeObjectURL(url)
+
+        document["downloadBtn"].bind("click", download_primes)
     </script>
 </body>
 </html>
