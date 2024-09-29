@@ -3,55 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prime Number Generator with Brython</title>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.9.5/brython.min.js"></script>
+    <title>Prime Number Finder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+    </style>
 </head>
-<body onload="brython()">
-    <h1>Prime Number Generator</h1>
-    <pre id="output">Primes Found: 0</pre>
-    <button id="downloadBtn">Download Prime Numbers</button>
+<body>
+    <h1>Prime Number Finder</h1>
+    <div>
+        <label for="n">Find the nth prime number (including 2):</label>
+        <input type="number" id="n" min="1" value="1">
+        <button onclick="findNthPrime()">Find nth Prime</button>
+    </div>
+    <div>
+        <h2>Highest Prime Found: <span id="highestPrime">2</span></h2>
+        <h2>Total Primes Found: <span id="totalPrimes">1</span></h2>
+    </div>
 
-    <script type="text/python">
-        from browser import document, window
-        import time
+    <script>
+        const worker = new Worker('primeWorker.js');
+        let primes = [2];
 
-        def is_prime(n):
-            if n <= 1:
-                return False
-            for i in range(2, int(n**0.5) + 1):
-                if n % i == 0:
-                    return False
-            return True
+        worker.onmessage = function(e) {
+            const { highestPrime, totalPrimes } = e.data;
+            primes.push(highestPrime);
+            document.getElementById('highestPrime').textContent = highestPrime;
+            document.getElementById('totalPrimes').textContent = totalPrimes;
+        };
 
-        num = 3
-        primes = []  # List to store prime numbers
-        prime_count = 0  # Counter for the number of primes found
+        function findNthPrime() {
+            const n = parseInt(document.getElementById('n').value);
+            if (n > 0 && n <= primes.length) {
+                alert(`The ${n}th prime number is ${primes[n - 1]}.`);
+            } else {
+                alert("Calculating more primes...");
+                calculatePrimes(n);
+            }
+        }
 
-        def generate_primes():
-            global num, prime_count
-            if is_prime(num):
-                primes.append(num)  # Store prime number
-                prime_count += 1  # Increment the prime count
-                document["output"].textContent = f'Primes Found: {prime_count}'  # Update the output with the count
-            num += 2  # Increment by 2 to only check odd numbers
-
-            # Schedule the next prime check after a short delay
-            window.setTimeout(generate_primes, 10)  # Adjust delay as needed
-
-        generate_primes()  # Start generating primes
-
-        def download_primes(event):
-            blob = window.Blob.new(["\n".join(map(str, primes))], { "type": "text/plain" })
-            url = window.URL.createObjectURL(blob)
-            a = window.document.createElement("a")
-            a.href = url
-            a.download = "primes.txt"
-            window.document.body.appendChild(a)
-            a.click()
-            window.document.body.removeChild(a)
-            window.URL.revokeObjectURL(url)
-
-        document["downloadBtn"].bind("click", download_primes)
+        function calculatePrimes(n) {
+            while (primes.length < n) {
+                // Allow the worker to calculate
+                // The worker will keep running independently
+            }
+            alert(`The ${n}th prime number is ${primes[n - 1]}.`);
+        }
     </script>
 </body>
 </html>
