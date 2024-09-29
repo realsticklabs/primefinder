@@ -34,14 +34,14 @@
                 prime_count += 1  # Increment the prime count
                 document["output"].textContent = f'Primes Found: {prime_count}'  # Update the output with the count
             num += 2  # Increment by 2 to only check odd numbers
-            
+
             # Schedule the next prime check after a short delay
             window.setTimeout(generate_primes, 10)  # Adjust delay as needed
 
         generate_primes()  # Start generating primes
 
         def download_primes(event):
-            blob = window.Blob.new([window.join(primes, "\n")], { "type": "text/plain" })
+            blob = window.Blob.new(["\n".join(map(str, primes))], { "type": "text/plain" })
             url = window.URL.createObjectURL(blob)
             a = window.document.createElement("a")
             a.href = url
