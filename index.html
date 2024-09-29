@@ -3,53 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prime Number Finder</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-        }
-    </style>
+    <title>Prime Number Generator</title>
 </head>
 <body>
-    <h1>Prime Number Finder</h1>
-    <div>
-        <label for="n">Find the nth prime number (including 2):</label>
-        <input type="number" id="n" min="1" value="1">
-        <button onclick="findNthPrime()">Find nth Prime</button>
-    </div>
-    <div>
-        <h2>Highest Prime Found: <span id="highestPrime">2</span></h2>
-        <h2>Total Primes Found: <span id="totalPrimes">1</span></h2>
-    </div>
+    <h1>Prime Number Generator</h1>
+    <p>Highest Prime Found: <span id="highestPrime">Loading...</span></p>
+    <p>Total Primes Generated: <span id="totalPrimes">0</span></p>
 
     <script>
-        const worker = new Worker('primeWorker.js');
-        let primes = JSON.parse(localStorage.getItem('primes')) || [2];
-
-        // Update the UI with the existing highest prime and total primes
-        document.getElementById('highestPrime').textContent = primes[primes.length - 1];
-        document.getElementById('totalPrimes').textContent = primes.length;
-
-        // Listen for messages from the worker
-        worker.onmessage = function(e) {
-            const { highestPrime, totalPrimes } = e.data;
-            if (!primes.includes(highestPrime)) {
-                primes.push(highestPrime);
-                localStorage.setItem('primes', JSON.stringify(primes)); // Save to localStorage
-                document.getElementById('highestPrime').textContent = highestPrime;
-                document.getElementById('totalPrimes').textContent = totalPrimes;
-            }
-        };
-
-        function findNthPrime() {
-            const n = parseInt(document.getElementById('n').value);
-            if (n > 0 && n <= primes.length) {
-                alert(`The ${n}th prime number is ${primes[n - 1]}.`);
-            } else {
-                alert("Calculating more primes...");
-            }
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js');
         }
+
+        const worker = new Worker('prime-worker.js');
+
+        worker.onmessage = (event) => {
+            document.getElementById('highestPrime').innerText = event.data.highestPrime;
+            document.getElementById('totalPrimes').innerText = event.data.totalPrimes;
+        };
     </script>
 </body>
 </html>
