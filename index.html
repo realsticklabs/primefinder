@@ -13,7 +13,6 @@
 </head>
 <body>
     <h1>Prime Number Finder</h1>
-    <i>Finding prime numbers since Sep 29 2024.</i>
     <div>
         <label for="n">Find the nth prime number (including 2):</label>
         <input type="number" id="n" min="1" value="1">
@@ -26,13 +25,21 @@
 
     <script>
         const worker = new Worker('primeWorker.js');
-        let primes = [2];
+        let primes = JSON.parse(localStorage.getItem('primes')) || [2];
 
+        // Update the UI with the existing highest prime and total primes
+        document.getElementById('highestPrime').textContent = primes[primes.length - 1];
+        document.getElementById('totalPrimes').textContent = primes.length;
+
+        // Listen for messages from the worker
         worker.onmessage = function(e) {
             const { highestPrime, totalPrimes } = e.data;
-            primes.push(highestPrime);
-            document.getElementById('highestPrime').textContent = highestPrime;
-            document.getElementById('totalPrimes').textContent = totalPrimes;
+            if (!primes.includes(highestPrime)) {
+                primes.push(highestPrime);
+                localStorage.setItem('primes', JSON.stringify(primes)); // Save to localStorage
+                document.getElementById('highestPrime').textContent = highestPrime;
+                document.getElementById('totalPrimes').textContent = totalPrimes;
+            }
         };
 
         function findNthPrime() {
@@ -41,16 +48,7 @@
                 alert(`The ${n}th prime number is ${primes[n - 1]}.`);
             } else {
                 alert("Calculating more primes...");
-                calculatePrimes(n);
             }
-        }
-
-        function calculatePrimes(n) {
-            while (primes.length < n) {
-                // Allow the worker to calculate
-                // The worker will keep running independently
-            }
-            alert(`The ${n}th prime number is ${primes[n - 1]}.`);
         }
     </script>
 </body>
