@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prime Number Generator</title>
+    <title>Prime Number Generator with Local Storage</title>
 </head>
 <body>
     <h1>Prime Number Generator</h1>
@@ -11,16 +11,48 @@
     <p>Total Primes Generated: <span id="totalPrimes">0</span></p>
 
     <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/service-worker.js');
+        const highestPrimeEl = document.getElementById('highestPrime');
+        const totalPrimesEl = document.getElementById('totalPrimes');
+
+        // Retrieve saved primes and current number from localStorage
+        let primes = JSON.parse(localStorage.getItem('primes')) || [2];
+        let currentNum = JSON.parse(localStorage.getItem('currentNum')) || 3;
+
+        // Save progress to localStorage
+        function saveProgress() {
+            localStorage.setItem('primes', JSON.stringify(primes));
+            localStorage.setItem('currentNum', JSON.stringify(currentNum));
         }
 
-        const worker = new Worker('prime-worker.js');
+        // Check if a number is prime
+        function isPrime(num) {
+            for (let i = 2; i <= Math.sqrt(num); i++) {
+                if (num % i === 0) return false;
+            }
+            return true;
+        }
 
-        worker.onmessage = (event) => {
-            document.getElementById('highestPrime').innerText = event.data.highestPrime;
-            document.getElementById('totalPrimes').innerText = event.data.totalPrimes;
-        };
+        // Generate primes continuously
+        function generatePrimes() {
+            setInterval(() => {
+                if (isPrime(currentNum)) {
+                    primes.push(currentNum);
+                    saveProgress();  // Save progress to localStorage
+
+                    // Update the UI with the latest prime and count
+                    highestPrimeEl.innerText = primes[primes.length - 1];
+                    totalPrimesEl.innerText = primes.length;
+                }
+                currentNum += 2; // Only check odd numbers
+            }, 33); // Generate every 33 milliseconds
+        }
+
+        // Initialize the UI with stored values
+        highestPrimeEl.innerText = primes[primes.length - 1];
+        totalPrimesEl.innerText = primes.length;
+
+        // Start generating primes
+        generatePrimes();
     </script>
 </body>
 </html>
