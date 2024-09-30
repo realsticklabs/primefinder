@@ -4,15 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prime Number Generator with Local Storage</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        input { margin: 10px 0; }
+    </style>
 </head>
 <body>
     <h1>Prime Number Generator</h1>
     <p>Highest Prime Found: <span id="highestPrime">Loading...</span></p>
     <p>Total Primes Generated: <span id="totalPrimes">0</span></p>
+    
+    <input type="number" id="nthInput" placeholder="Enter n to find nth prime">
+    <button id="findNthPrime">Find nth Prime</button>
+    <p>Result: <span id="nthResult"></span></p>
+
+    <button id="downloadPrimes">Download Primes as TXT</button>
 
     <script>
         const highestPrimeEl = document.getElementById('highestPrime');
         const totalPrimesEl = document.getElementById('totalPrimes');
+        const nthInput = document.getElementById('nthInput');
+        const nthResult = document.getElementById('nthResult');
 
         // Retrieve saved primes and current number from localStorage, or set default values
         let primes = JSON.parse(localStorage.getItem('primes')) || [2];
@@ -26,6 +38,7 @@
 
         // Check if a number is prime
         function isPrime(num) {
+            if (num < 2) return false; // 0 and 1 are not prime
             for (let i = 2; i <= Math.sqrt(num); i++) {
                 if (num % i === 0) return false;
             }
@@ -44,12 +57,41 @@
                     totalPrimesEl.innerText = primes.length;
                 }
                 currentNum += 2; // Only check odd numbers
-            }, 33); // Generate every 33 milliseconds
+            }, 1); // Generate every 1 milliseconds
         }
 
         // Initialize the UI with stored values
         highestPrimeEl.innerText = primes[primes.length - 1];
         totalPrimesEl.innerText = primes.length;
+
+        // Function to find the nth prime number
+        function findNthPrime() {
+            const n = parseInt(nthInput.value);
+            if (!isNaN(n) && n > 0 && n <= primes.length) {
+                nthResult.innerText = primes[n - 1]; // n-1 because array index starts at 0
+            } else {
+                nthResult.innerText = `Invalid input or only ${primes.length} primes generated.`;
+            }
+        }
+
+        // Event listener for finding nth prime
+        document.getElementById('findNthPrime').addEventListener('click', findNthPrime);
+
+        // Function to download primes as a TXT file
+        function downloadPrimes() {
+            const blob = new Blob([primes.join('\n')], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'primes.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url); // Free up memory
+        }
+
+        // Event listener for downloading primes
+        document.getElementById('downloadPrimes').addEventListener('click', downloadPrimes);
 
         // Start generating primes
         generatePrimes();
