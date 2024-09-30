@@ -14,7 +14,7 @@
         const highestPrimeEl = document.getElementById('highestPrime');
         const totalPrimesEl = document.getElementById('totalPrimes');
 
-        // Retrieve saved primes and current number from localStorage
+        // Retrieve saved primes and current number from localStorage, or set default values
         let primes = JSON.parse(localStorage.getItem('primes')) || [2];
         let currentNum = JSON.parse(localStorage.getItem('currentNum')) || 3;
 
