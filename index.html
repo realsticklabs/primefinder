@@ -27,11 +27,11 @@
         const nthInput = document.getElementById('nthInput');
         const nthResult = document.getElementById('nthResult');
 
-        // Initialize saved primes and current number
-        let primes = [2];
-        let currentNum = 3;
+        // Initialize saved primes and current number from localStorage
+        let primes = JSON.parse(localStorage.getItem('primes')) || [2];
+        let currentNum = JSON.parse(localStorage.getItem('currentNum')) || 3;
 
-        // Save progress to localStorage
+        // Function to save progress to localStorage
         function saveProgress() {
             localStorage.setItem('primes', JSON.stringify(primes));
             localStorage.setItem('currentNum', JSON.stringify(currentNum));
@@ -58,7 +58,7 @@
                     totalPrimesEl.innerText = primes.length;
                 }
                 currentNum += 2; // Only check odd numbers
-            }, 0);
+            }, 33); // Generate every 33 milliseconds
         }
 
         // Initialize the UI
@@ -96,6 +96,7 @@
 
         // Function to restart the generator
         function restartGenerator() {
+            // Reset to default values
             primes = [2]; // Reset primes
             currentNum = 3; // Reset current number
             saveProgress(); // Save the initial state
