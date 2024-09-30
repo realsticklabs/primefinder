@@ -19,6 +19,7 @@
     <p>Result: <span id="nthResult"></span></p>
 
     <button id="downloadPrimes">Download Primes as TXT</button>
+    <button id="restartButton">Restart</button>
 
     <script>
         const highestPrimeEl = document.getElementById('highestPrime');
@@ -26,9 +27,9 @@
         const nthInput = document.getElementById('nthInput');
         const nthResult = document.getElementById('nthResult');
 
-        // Retrieve saved primes and current number from localStorage, or set default values
-        let primes = JSON.parse(localStorage.getItem('primes')) || [2];
-        let currentNum = JSON.parse(localStorage.getItem('currentNum')) || 3;
+        // Initialize saved primes and current number
+        let primes = [2];
+        let currentNum = 3;
 
         // Save progress to localStorage
         function saveProgress() {
@@ -57,11 +58,11 @@
                     totalPrimesEl.innerText = primes.length;
                 }
                 currentNum += 2; // Only check odd numbers
-            }, 1); // Generate every 1 milliseconds
+            }, 1);
         }
 
-        // Initialize the UI with stored values
-        highestPrimeEl.innerText = primes[primes.length - 1];
+        // Initialize the UI
+        highestPrimeEl.innerText = primes[0];
         totalPrimesEl.innerText = primes.length;
 
         // Function to find the nth prime number
@@ -92,6 +93,22 @@
 
         // Event listener for downloading primes
         document.getElementById('downloadPrimes').addEventListener('click', downloadPrimes);
+
+        // Function to restart the generator
+        function restartGenerator() {
+            primes = [2]; // Reset primes
+            currentNum = 3; // Reset current number
+            saveProgress(); // Save the initial state
+
+            // Reset the UI
+            highestPrimeEl.innerText = primes[0];
+            totalPrimesEl.innerText = primes.length;
+            nthResult.innerText = ''; // Clear the nth result
+            nthInput.value = ''; // Clear the input
+        }
+
+        // Event listener for restart button
+        document.getElementById('restartButton').addEventListener('click', restartGenerator);
 
         // Start generating primes
         generatePrimes();
